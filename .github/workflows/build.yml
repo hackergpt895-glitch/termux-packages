@@ -1,0 +1,37 @@
+name: Build Custom Termux Bootstrap
+
+# Yeh action humein manual button dega run karne ke liye
+on:
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # GitHub server par extra space khali karne ke liye (Taaki 'No space left' error na aaye)
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: false
+          swap-storage: true
+
+      - name: Build Bootstrap (aarch64)
+        run: |
+          # Docker start karke seedha build command pass kar rahe hain
+          ./scripts/run-docker.sh ./scripts/build-bootstraps.sh --architectures aarch64
+
+      # Build complete hone ke baad Zip file ko upload karna taaki aap download kar sakein
+      - name: Upload Bootstrap Zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: custom-bootstrap-aarch64
+          path: "*.zip"
